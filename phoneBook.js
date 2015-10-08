@@ -82,7 +82,7 @@ module.exports.remove = function remove(query) {
 /*
    Функция импорта записей из файла (задача со звёздочкой!).
 */
-module.exports.importFmCsvro = function importFmCsvro(filename) {
+module.exports.importFromCsv = function importFromCsv(filename) {
     var data = require('fs').readFileSync(filename, 'utf-8');
     var parseData = data.split(/[;\n]/);
     var addedContacts = 0;
