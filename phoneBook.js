@@ -1,34 +1,34 @@
 'use strict';
 
+  // var email = "just7@yandex-team.ru"
+  // console.log(isValidEmail(email), email);
+
 var phoneBook = [];
-module.exports.add = function add(name, phone, email) {
-    //console.log(name , phone, email);
+var add = function add(name, phone, email) {
     var validPhone = isValidPhone(phone);
     var validEmail = isValidEmail(email);
-    if (validEmail & validPhone) {
+    if (validEmail && validPhone) {
         phoneBook.push([name, phone, email]);
         return true;
     }
     return false;
 };
+module.exports.add = add;
 
 function isValidPhone(phone) {
-    var phoneReExp = /^[\+]{0,1}[\d]+\ (\(\d\d\d\)){0,1}[\d\ -]{4,15}\d$/;
-    var phoneReExp2 = /^\d{10,13}/;
-    var result = phone.match(phoneReExp);
-    var result2 = phone.match(phoneReExp2);
-    if (result || result2) {
-        //console.log('validP');
+    phone = phone.replace(/[ -]/gi,'');
+    var phoneReExp = /^[\+]?(\d+\(\d{3}\))?\d{7,15}$/;
+    if (phoneReExp.test(phone) && phone.length > 7) {
+        //console.log('validP', phone);
         return true;
     }
     return false;
 }
 
 function isValidEmail(email) {
-    var emailReExp = /^[\w-\.]+@[\w-]+\.[a-z]{2,4}$/i;
-    var result = email.match(emailReExp);
-    if (result) {
-        // console.log('validE');
+    var emailReExp = /^[\w-]+@([\w-]|[а-яё])+(\.([\w]|[а-яё]){2,4})+$/i;
+    if (emailReExp.test(email)) {
+        //console.log('validE', email);
         return true;
     }
     return false;
@@ -39,11 +39,11 @@ function isValidEmail(email) {
 */
 module.exports.find = function find(query) {
     var matches = find1(query);
-    if (matches.length > 0) {
-        console.log('found contacts:');
-    } else {
+    if (!matches.length) {
         console.log('no matches found');
+        return;
     }
+    console.log('found contacts:');
     for (var i = 0; i < matches.length; i++) {
         console.log(phoneBook[matches[i]].join(', '));
     };
@@ -68,15 +68,15 @@ module.exports.remove = function remove(query) {
     for (var i = 0; i < matches.length; i++) {
         phoneBook.splice(matches[i], 1);
     };
-    if (matches.length > 0) {
-        if (matches.length == 1) {
-            console.log('1 contact removed');
-        } else {
-            console.log(matches.length + 'contacts removed');
-        }
-    } else {
+    if (!matches.length) {
         console.log('no matches found');
+        return;
     }
+    if (matches.length == 1) {
+        console.log('1 contact removed');
+        return;
+    }
+    console.log(matches.length + 'contacts removed');
 };
 
 /*
@@ -84,10 +84,10 @@ module.exports.remove = function remove(query) {
 */
 module.exports.importFromCsv = function importFromCsv(filename) {
     var data = require('fs').readFileSync(filename, 'utf-8');
-    var parseData = data.split(/[;\n]/);
+    var parseData = data.split(/\r\n|\r|\n|;/g);
     var addedContacts = 0;
     for (var i = 0; i < parseData.length - 3; i += 3) {
-        if (module.exports.add(parseData[i], parseData[i + 1], parseData[i + 2])) {
+        if (add(parseData[i], parseData[i + 1], parseData[i + 2])) {
             addedContacts += 1;
         }
     };
